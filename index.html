@@ -1,0 +1,2527 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Fortune Tiger - Caça-Níquel da Fortuna</title>
+  <style>
+    /* =====================================================
+       RESET & BASE TYPOGRAPHY
+       ===================================================== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    body {
+      min-height: 100vh;
+      background: radial-gradient(circle at 50% 20%, #4a0007 0%, #200004 60%, #0d0002 100%);
+      font-family: 'Cinzel', 'Georgia', 'Playfair Display', serif;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 12px;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Fundo com textura oriental sutil */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-image: 
+        radial-gradient(circle at 50% 50%, rgba(255, 215, 0, 0.05) 0%, transparent 70%),
+        repeating-linear-gradient(45deg, rgba(212, 175, 55, 0.02) 0, rgba(212, 175, 55, 0.02) 2px, transparent 0, transparent 40px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* =====================================================
+       ESTILOS GERAIS E CONTAINER
+       ===================================================== */
+    .game-wrapper {
+      position: relative;
+      width: 100%;
+      max-width: 440px;
+      background: linear-gradient(180deg, #66050b 0%, #3d0206 50%, #220104 100%);
+      border: 3px solid #d4af37;
+      border-radius: 28px;
+      padding: 16px 14px 20px;
+      box-shadow: 
+        0 0 35px rgba(255, 215, 0, 0.25),
+        0 20px 50px rgba(0, 0, 0, 0.8),
+        inset 0 0 15px rgba(255, 215, 0, 0.3);
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* Detalhes dourados nos cantos */
+    .corner-ornament {
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      border: 3px solid #ffe89c;
+      pointer-events: none;
+    }
+    .corner-tl { top: 8px; left: 8px; border-right: none; border-bottom: none; border-top-left-radius: 12px; }
+    .corner-tr { top: 8px; right: 8px; border-left: none; border-bottom: none; border-top-right-radius: 12px; }
+    .corner-bl { bottom: 8px; left: 8px; border-right: none; border-top: none; border-bottom-left-radius: 12px; }
+    .corner-br { bottom: 8px; right: 8px; border-left: none; border-top: none; border-bottom-right-radius: 12px; }
+
+    /* Barra Superior de Controles de Sistema */
+    .top-bar {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 4px;
+    }
+
+    .icon-btn {
+      background: linear-gradient(180deg, #440004, #200003);
+      border: 1px solid #d4af37;
+      color: #ffe680;
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 16px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+      transition: all 0.2s ease;
+    }
+    .icon-btn:hover {
+      transform: scale(1.08);
+      border-color: #fff2a3;
+      box-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
+    }
+    .icon-btn:active {
+      transform: scale(0.95);
+    }
+
+    /* Banner / Multiplicador 10x da Fortuna */
+    .fortune-banner {
+      background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.2), transparent);
+      border-top: 1px solid rgba(255, 215, 0, 0.4);
+      border-bottom: 1px solid rgba(255, 215, 0, 0.4);
+      padding: 3px 14px;
+      font-size: 11px;
+      letter-spacing: 2px;
+      color: #ffd700;
+      text-transform: uppercase;
+      font-weight: 700;
+      text-shadow: 0 0 8px rgba(255, 215, 0, 0.8);
+      animation: pulseGlow 2.5s infinite alternate;
+    }
+
+    @keyframes pulseGlow {
+      0% { text-shadow: 0 0 4px rgba(255, 215, 0, 0.4); opacity: 0.85; }
+      100% { text-shadow: 0 0 14px rgba(255, 230, 100, 1), 0 0 20px #ff6600; opacity: 1; }
+    }
+
+    /* =====================================================
+       MASCOTE E CABEÇALHO DO TIGRE
+       ===================================================== */
+    .header-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      margin-top: -6px;
+    }
+
+    .tiger-avatar-container {
+      position: relative;
+      width: 130px;
+      height: 115px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      perspective: 600px;
+    }
+
+    /* Aura de raios celestiais dourados atrás do Tigre */
+    .tiger-aura-bg {
+      position: absolute;
+      width: 140px;
+      height: 140px;
+      top: -12px;
+      left: -5px;
+      pointer-events: none;
+      opacity: 0.35;
+      animation: rotateAuraRays 20s linear infinite;
+      z-index: 1;
+      transition: all 0.4s ease;
+    }
+
+    @keyframes rotateAuraRays {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .tiger-svg {
+      width: 120px;
+      height: 115px;
+      filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.7));
+      z-index: 2;
+      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .tiger-avatar-container:hover .tiger-svg {
+      transform: scale(1.08) translateY(-4px);
+    }
+
+    /* 1. Respiração Natural do Tigrinho */
+    .tiger-body-anim {
+      transform-origin: 65px 105px;
+      animation: tigerBreathe 3s ease-in-out infinite;
+    }
+
+    @keyframes tigerBreathe {
+      0%, 100% { transform: scale(1) translateY(0); }
+      50% { transform: scale(1.02, 0.98) translateY(1.5px); }
+    }
+
+    /* 2. Cabeça do Tigrinho com movimento suave */
+    .tiger-head-anim {
+      transform-origin: 65px 65px;
+      animation: tigerHeadBob 3.8s ease-in-out infinite;
+    }
+
+    @keyframes tigerHeadBob {
+      0%, 100% { transform: rotate(0deg) translateY(0); }
+      25% { transform: rotate(-2deg) translateY(-1px); }
+      75% { transform: rotate(2deg) translateY(-0.5px); }
+    }
+
+    /* 3. Rabinho peludo balançando */
+    .tiger-tail-anim {
+      transform-origin: 22px 96px;
+      animation: tigerTailWag 2.2s ease-in-out infinite alternate;
+    }
+
+    @keyframes tigerTailWag {
+      0% { transform: rotate(-14deg); }
+      100% { transform: rotate(18deg); }
+    }
+
+    /* 4. Orelhas que tremem independentes */
+    .tiger-ear-left-anim {
+      transform-origin: 34px 34px;
+      animation: earTwitchL 4.5s infinite;
+    }
+    .tiger-ear-right-anim {
+      transform-origin: 96px 34px;
+      animation: earTwitchR 5.2s 1.2s infinite;
+    }
+
+    @keyframes earTwitchL {
+      0%, 90%, 100% { transform: rotate(0deg); }
+      92% { transform: rotate(-10deg); }
+      94% { transform: rotate(5deg); }
+      96% { transform: rotate(-6deg); }
+    }
+
+    @keyframes earTwitchR {
+      0%, 88%, 100% { transform: rotate(0deg); }
+      90% { transform: rotate(10deg); }
+      93% { transform: rotate(-5deg); }
+      96% { transform: rotate(7deg); }
+    }
+
+    /* 5. Brilho laser que passa nos óculos de sol VIP */
+    .sunglass-gleam-anim {
+      animation: gleamSweep 3.6s ease-in-out infinite;
+    }
+
+    @keyframes gleamSweep {
+      0%, 65% { transform: translateX(-35px); opacity: 0; }
+      70% { opacity: 0.95; }
+      85% { transform: translateX(50px); opacity: 0.95; }
+      90%, 100% { transform: translateX(50px); opacity: 0; }
+    }
+
+    /* 6. Lingote de Ouro (Yuanbao) levitando nas patinhas */
+    .tiger-ingot-anim {
+      transform-origin: 65px 98px;
+      animation: ingotHover 2s ease-in-out infinite alternate;
+    }
+
+    @keyframes ingotHover {
+      0% { transform: translateY(0) scale(1); filter: drop-shadow(0 2px 5px rgba(255, 215, 0, 0.4)); }
+      100% { transform: translateY(-4px) scale(1.08); filter: drop-shadow(0 0 12px rgba(255, 230, 100, 0.95)); }
+    }
+
+    /* 7. Patas segurando o lingote */
+    .tiger-paws-anim {
+      transform-origin: 65px 95px;
+      animation: pawsBreathe 3s ease-in-out infinite;
+    }
+
+    @keyframes pawsBreathe {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(1.2px); }
+    }
+
+    /* =====================================================
+       ESTADOS DINÂMICOS DO TIGRINHO
+       ===================================================== */
+    /* Estado: Durante o Giro (Torcida do Tigrinho) */
+    .tiger-avatar-container.tiger-anticipating .tiger-svg {
+      animation: tigerLeanForward 0.5s ease-in-out infinite alternate;
+    }
+    .tiger-avatar-container.tiger-anticipating .tiger-aura-bg {
+      opacity: 0.7;
+      animation: rotateAuraRays 6s linear infinite;
+    }
+    .tiger-avatar-container.tiger-anticipating .tiger-tail-anim {
+      animation: tigerTailWag 0.7s ease-in-out infinite alternate;
+    }
+
+    @keyframes tigerLeanForward {
+      0% { transform: translateY(1px) scale(1.03) rotate(-3deg); }
+      100% { transform: translateY(6px) scale(1.06) rotate(3deg); }
+    }
+
+    /* Estado: Vitória Normal (Dança do Tigre) */
+    .tiger-avatar-container.tiger-celebrating .tiger-svg {
+      animation: tigerWinDance 0.5s ease-in-out infinite alternate !important;
+    }
+    .tiger-avatar-container.tiger-celebrating .tiger-ingot-anim {
+      animation: ingotCelebrate 0.5s ease-in-out infinite alternate;
+    }
+    .tiger-avatar-container.tiger-celebrating .tiger-aura-bg {
+      opacity: 0.9;
+      animation: rotateAuraRays 4s linear infinite;
+      filter: drop-shadow(0 0 10px #ffd700);
+    }
+
+    @keyframes tigerWinDance {
+      0% { transform: translateY(0) scale(1) rotate(-6deg); }
+      100% { transform: translateY(-16px) scale(1.18) rotate(6deg); }
+    }
+
+    @keyframes ingotCelebrate {
+      0% { transform: translateY(0) scale(1); }
+      100% { transform: translateY(-10px) scale(1.3) rotate(-8deg); }
+    }
+
+    /* Estado: Super Vitória / 10X / Jackpot (Modo Fúria Dourada) */
+    .tiger-avatar-container.tiger-super-roar .tiger-svg {
+      animation: tigerSuperRoarAnim 0.6s ease-in-out infinite alternate !important;
+      filter: drop-shadow(0 0 25px #ffd700) drop-shadow(0 0 45px #ff4500) !important;
+    }
+    .tiger-avatar-container.tiger-super-roar .tiger-aura-bg {
+      opacity: 1 !important;
+      animation: rotateAuraRays 2s linear infinite;
+      filter: drop-shadow(0 0 20px #ffd700) drop-shadow(0 0 35px #ff6600);
+    }
+
+    @keyframes tigerSuperRoarAnim {
+      0% { transform: scale(1.12) translateY(-2px) rotate(-5deg); }
+      100% { transform: scale(1.3) translateY(-18px) rotate(5deg); }
+    }
+
+    /* Tremor de tela dramático no gabinete */
+    @keyframes screenShake {
+      0%, 100% { transform: translate(0, 0); }
+      20% { transform: translate(-4px, 3px); }
+      40% { transform: translate(4px, -3px); }
+      60% { transform: translate(-3px, 2px); }
+      80% { transform: translate(3px, -2px); }
+    }
+    .screen-shake {
+      animation: screenShake 0.45s ease-in-out;
+    }
+
+    .tiger-speech {
+      position: absolute;
+      top: -14px;
+      right: -68px;
+      background: #fff;
+      color: #7a000a;
+      font-size: 11px;
+      font-weight: 900;
+      padding: 5px 10px;
+      border-radius: 14px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      transform: translateY(6px);
+      transition: all 0.3s ease;
+      z-index: 10;
+    }
+    .tiger-speech::after {
+      content: "";
+      position: absolute;
+      bottom: -6px;
+      left: 14px;
+      border-width: 6px 6px 0;
+      border-style: solid;
+      border-color: #fff transparent;
+      display: block;
+      width: 0;
+    }
+    .tiger-speech.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .title-box {
+      text-align: center;
+      margin-top: 2px;
+    }
+
+    .game-title {
+      font-size: 26px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      background: linear-gradient(180deg, #fff0a8 0%, #ffd700 45%, #e6a100 70%, #aa6c00 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));
+      text-transform: uppercase;
+      line-height: 1.1;
+    }
+
+    .game-subtitle {
+      font-size: 11px;
+      color: #ffc97a;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      font-weight: 600;
+      opacity: 0.9;
+    }
+
+    /* =====================================================
+       BARRA DO ALGORITMO / VOLATILIDADE
+       ===================================================== */
+    .volatility-bar {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      margin-top: -2px;
+      margin-bottom: 2px;
+    }
+
+    .volatility-pill {
+      background: linear-gradient(180deg, #380308 0%, #1a0003 100%);
+      border: 1.5px solid #d4af37;
+      color: #ffe680;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      padding: 5px 14px;
+      border-radius: 20px;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.6);
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      text-transform: uppercase;
+    }
+
+    .volatility-pill:hover {
+      border-color: #fff2a3;
+      transform: scale(1.03);
+      box-shadow: 0 0 12px rgba(255, 215, 0, 0.5);
+    }
+
+    .volatility-pill.hardcore {
+      border-color: #ff3333;
+      color: #ff9999;
+      background: linear-gradient(180deg, #4d0000 0%, #200000 100%);
+      box-shadow: 0 0 10px rgba(255, 50, 50, 0.4);
+    }
+
+    .volatility-pill.easy {
+      border-color: #00e676;
+      color: #b9f6ca;
+      background: linear-gradient(180deg, #003b14 0%, #001f0a 100%);
+      box-shadow: 0 0 10px rgba(0, 230, 118, 0.3);
+    }
+
+    /* =====================================================
+       GABINETE DO CAÇA-NÍQUEL (REELS)
+       ===================================================== */
+    .slot-cabinet {
+      position: relative;
+      width: 100%;
+      background: linear-gradient(180deg, #180003 0%, #100002 100%);
+      border: 4px solid #b8860b;
+      border-radius: 20px;
+      padding: 10px 8px;
+      box-shadow: 
+        inset 0 0 25px rgba(0, 0, 0, 0.95),
+        0 8px 20px rgba(0,0,0,0.7),
+        0 0 0 2px #ffe082;
+      overflow: hidden;
+    }
+
+    .reels-container {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      height: 270px; /* 3 linhas de 90px */
+      position: relative;
+      background: #0a0102;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 2px solid #5a0208;
+    }
+
+    /* Sombra de profundidade cilíndrica dos rolos */
+    .reels-container::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(180deg, 
+        rgba(0, 0, 0, 0.85) 0%, 
+        rgba(0, 0, 0, 0.15) 18%, 
+        rgba(0, 0, 0, 0) 45%, 
+        rgba(0, 0, 0, 0) 55%, 
+        rgba(0, 0, 0, 0.15) 82%, 
+        rgba(0, 0, 0, 0.85) 100%);
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    /* Linha de Pagamento Central (Payline) */
+    .payline-highlight {
+      position: absolute;
+      top: 90px;
+      left: 0;
+      right: 0;
+      height: 90px;
+      border-top: 2px dashed rgba(255, 215, 0, 0.6);
+      border-bottom: 2px dashed rgba(255, 215, 0, 0.6);
+      background: linear-gradient(90deg, 
+        rgba(255, 215, 0, 0.08) 0%, 
+        rgba(255, 215, 0, 0.18) 50%, 
+        rgba(255, 215, 0, 0.08) 100%);
+      pointer-events: none;
+      z-index: 4;
+      transition: all 0.3s ease;
+    }
+
+    .payline-highlight.winning-line {
+      border-top: 3px solid #ffea79;
+      border-bottom: 3px solid #ffea79;
+      background: rgba(255, 215, 0, 0.3);
+      box-shadow: 0 0 25px rgba(255, 215, 0, 0.7);
+      animation: paylinePulse 0.5s infinite alternate;
+    }
+
+    @keyframes paylinePulse {
+      0% { opacity: 0.7; }
+      100% { opacity: 1; }
+    }
+
+    /* Indicadores laterais da Payline */
+    .payline-tag-left, .payline-tag-right {
+      position: absolute;
+      top: 125px;
+      width: 14px;
+      height: 20px;
+      background: #ffd700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 900;
+      color: #66050b;
+      z-index: 8;
+      box-shadow: 0 0 8px #ffea00;
+    }
+    .payline-tag-left {
+      left: 0px;
+      border-radius: 0 4px 4px 0;
+      clip-path: polygon(0 0, 70% 0, 100% 50%, 70% 100%, 0 100%);
+    }
+    .payline-tag-right {
+      right: 0px;
+      border-radius: 4px 0 0 4px;
+      clip-path: polygon(100% 0, 30% 0, 0 50%, 30% 100%, 100% 100%);
+    }
+
+    /* Cada rolo individual */
+    .reel {
+      position: relative;
+      height: 100%;
+      overflow: hidden;
+      background: linear-gradient(180deg, #1b0004 0%, #290107 50%, #1b0004 100%);
+      border-left: 1px solid rgba(212, 175, 55, 0.3);
+      border-right: 1px solid rgba(212, 175, 55, 0.3);
+    }
+
+    .reel-strip {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      will-change: transform;
+    }
+
+    /* Célula do símbolo */
+    .symbol-cell {
+      height: 90px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 6px;
+      position: relative;
+      transition: transform 0.2s ease, filter 0.2s ease;
+    }
+
+    .symbol-icon {
+      width: 60px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.6));
+    }
+
+    .symbol-icon svg {
+      width: 100%;
+      height: 100%;
+      transition: transform 0.3s ease;
+    }
+
+    .symbol-name {
+      font-size: 9px;
+      color: #ffdf9e;
+      font-weight: 700;
+      margin-top: 2px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      text-shadow: 0 1px 2px #000;
+    }
+
+    /* Animação de Vitória no Símbolo */
+    .symbol-win {
+      animation: symbolWinGlow 0.7s infinite alternate;
+      z-index: 6;
+    }
+
+    .symbol-win .symbol-icon svg {
+      transform: scale(1.18);
+      filter: drop-shadow(0 0 10px #ffe866);
+    }
+
+    @keyframes symbolWinGlow {
+      0% { transform: scale(1); filter: brightness(1); }
+      100% { transform: scale(1.08); filter: brightness(1.35) drop-shadow(0 0 12px #ffd700); }
+    }
+
+    /* Durante o giro rápido */
+    .reel-spinning {
+      filter: blur(1.5px);
+    }
+
+    /* =====================================================
+       PAINEL DE MENSAGEM DINÂMICA
+       ===================================================== */
+    .status-display {
+      width: 100%;
+      background: linear-gradient(180deg, #1f0104, #0a0002);
+      border: 2px solid #b8860b;
+      border-radius: 12px;
+      padding: 8px 12px;
+      text-align: center;
+      min-height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: inset 0 2px 6px rgba(0,0,0,0.8);
+    }
+
+    .status-text {
+      font-size: 13px;
+      font-weight: 700;
+      color: #ffe680;
+      letter-spacing: 1px;
+      transition: all 0.3s ease;
+    }
+
+    .status-text.win {
+      color: #ffea00;
+      text-shadow: 0 0 10px #ffea00, 0 0 20px #ff5100;
+      animation: bounceWin 0.4s ease infinite alternate;
+    }
+
+    .status-text.alert {
+      color: #ff5252;
+    }
+
+    @keyframes bounceWin {
+      0% { transform: scale(1); }
+      100% { transform: scale(1.06); }
+    }
+
+    /* =====================================================
+       PAINEL DE CONTROLE / INFORMAÇÕES (HUD)
+       ===================================================== */
+    .dashboard {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .hud-card {
+      background: linear-gradient(180deg, #320307 0%, #190104 100%);
+      border: 1.5px solid #d4af37;
+      border-radius: 14px;
+      padding: 8px 10px;
+      text-align: center;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
+    }
+
+    .hud-title {
+      font-size: 10px;
+      color: #ffc97a;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+
+    .hud-value {
+      font-size: 16px;
+      font-weight: 900;
+      color: #ffffff;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.7);
+    }
+
+    .hud-value.gold {
+      color: #ffe680;
+      text-shadow: 0 0 8px rgba(255, 215, 0, 0.6);
+    }
+
+    /* Ajuste de Aposta */
+    .bet-controller {
+      grid-column: span 2;
+      background: linear-gradient(180deg, #380409 0%, #1e0205 100%);
+      border: 1.5px solid #d4af37;
+      border-radius: 14px;
+      padding: 6px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .bet-label-group {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .bet-buttons-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .bet-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: linear-gradient(180deg, #ffe082 0%, #c49000 100%);
+      border: 1px solid #fff5b8;
+      color: #4a0004;
+      font-size: 18px;
+      font-weight: 900;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 3px 0 #734f00, 0 4px 6px rgba(0,0,0,0.5);
+      transition: all 0.1s ease;
+    }
+    .bet-btn:hover:not(:disabled) {
+      filter: brightness(1.15);
+    }
+    .bet-btn:active:not(:disabled) {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 #734f00;
+    }
+    .bet-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      filter: grayscale(1);
+    }
+
+    .max-btn {
+      background: linear-gradient(180deg, #ff8533 0%, #b83200 100%);
+      border: 1px solid #ffa366;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 900;
+      padding: 0 8px;
+      height: 32px;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 0 3px 0 #6e1d00, 0 4px 6px rgba(0,0,0,0.5);
+      transition: all 0.1s ease;
+    }
+    .max-btn:active:not(:disabled) {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 #6e1d00;
+    }
+    .max-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    /* =====================================================
+       BOTÃO DE GIRAR 3D E AÇÕES SECUNDÁRIAS
+       ===================================================== */
+    .action-row {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 4px;
+    }
+
+    /* Botão Girar Primário 3D */
+    .spin-button-container {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+    }
+
+    .spin-btn {
+      position: relative;
+      width: 100%;
+      height: 60px;
+      background: linear-gradient(180deg, #ffea85 0%, #f3ba2f 40%, #c58600 70%, #996200 100%);
+      border: 2px solid #fff5c0;
+      border-radius: 30px;
+      color: #3b0206;
+      font-family: 'Cinzel', 'Georgia', serif;
+      font-size: 22px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 
+        0 6px 0 #664100,
+        0 12px 20px rgba(0, 0, 0, 0.7),
+        inset 0 2px 4px rgba(255, 255, 255, 0.8),
+        inset 0 -2px 4px rgba(0, 0, 0, 0.4);
+      transition: all 0.1s ease;
+    }
+
+    .spin-btn:hover:not(:disabled) {
+      filter: brightness(1.1);
+      box-shadow: 
+        0 6px 0 #664100,
+        0 14px 24px rgba(255, 215, 0, 0.4),
+        inset 0 2px 4px rgba(255, 255, 255, 0.9);
+    }
+
+    .spin-btn:active:not(:disabled) {
+      transform: translateY(5px);
+      box-shadow: 
+        0 1px 0 #664100,
+        0 4px 8px rgba(0, 0, 0, 0.6),
+        inset 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .spin-btn:disabled {
+      filter: grayscale(0.8) brightness(0.7);
+      cursor: not-allowed;
+      transform: translateY(2px);
+      box-shadow: 0 3px 0 #3a2500;
+    }
+
+    .spin-btn-icon {
+      font-size: 24px;
+      animation: rotateIcon 6s linear infinite;
+    }
+
+    @keyframes rotateIcon {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    /* Botões Auxiliares (Auto e Turbo) */
+    .aux-btn {
+      width: 52px;
+      height: 52px;
+      border-radius: 16px;
+      background: linear-gradient(180deg, #3d0206 0%, #1f0103 100%);
+      border: 1.5px solid #d4af37;
+      color: #ffc97a;
+      font-size: 10px;
+      font-weight: 800;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      cursor: pointer;
+      box-shadow: 0 4px 0 #120002, 0 6px 10px rgba(0,0,0,0.5);
+      transition: all 0.1s ease;
+    }
+
+    .aux-btn:hover {
+      border-color: #ffe680;
+      color: #ffe680;
+    }
+
+    .aux-btn:active {
+      transform: translateY(3px);
+      box-shadow: 0 1px 0 #120002;
+    }
+
+    .aux-btn.active {
+      background: linear-gradient(180deg, #d4af37 0%, #916800 100%);
+      color: #2b0003;
+      border-color: #fff2a3;
+      box-shadow: 0 2px 0 #523b00, 0 0 12px rgba(255, 215, 0, 0.6);
+    }
+
+    .aux-btn svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    /* =====================================================
+       MODAL DE TABELA DE PAGAMENTOS
+       ===================================================== */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+      padding: 16px;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-card {
+      width: 100%;
+      max-width: 400px;
+      background: linear-gradient(180deg, #440308 0%, #1e0104 100%);
+      border: 3px solid #d4af37;
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 0 30px rgba(255, 215, 0, 0.4);
+      transform: scale(0.9);
+      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      max-height: 85vh;
+      overflow-y: auto;
+    }
+
+    .modal-overlay.active .modal-card {
+      transform: scale(1);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(212, 175, 55, 0.4);
+      padding-bottom: 10px;
+      margin-bottom: 12px;
+    }
+
+    .modal-title {
+      font-size: 18px;
+      color: #ffe680;
+      font-weight: 900;
+      letter-spacing: 1px;
+    }
+
+    .close-modal-btn {
+      background: transparent;
+      border: none;
+      color: #ffb8b8;
+      font-size: 24px;
+      cursor: pointer;
+      padding: 0 4px;
+    }
+
+    .paytable-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .paytable-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(212, 175, 55, 0.2);
+      border-radius: 10px;
+      padding: 6px 12px;
+    }
+
+    .paytable-sym {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .paytable-sym-icon {
+      width: 34px;
+      height: 34px;
+    }
+
+    .paytable-sym-desc {
+      font-size: 12px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .paytable-payouts {
+      text-align: right;
+      font-size: 11px;
+      color: #ffe680;
+      font-weight: 800;
+    }
+
+    .payout-high {
+      color: #ffd700;
+      font-size: 13px;
+    }
+
+    .rules-list {
+      margin-top: 14px;
+      font-size: 11px;
+      color: #e0b0b0;
+      line-height: 1.5;
+      border-top: 1px dashed rgba(212, 175, 55, 0.3);
+      padding-top: 10px;
+    }
+
+    /* =====================================================
+       CANVAS DE CONFETES E MOEDAS
+       ===================================================== */
+    #celebrationCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 90;
+    }
+
+    /* =====================================================
+       NOTIFICAÇÃO GRANDE VITÓRIA (POPUP)
+       ===================================================== */
+    .big-win-overlay {
+      position: absolute;
+      top: 35%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      background: radial-gradient(circle, #ffe680 0%, #d4af37 40%, #800000 80%);
+      border: 4px solid #fff;
+      border-radius: 20px;
+      padding: 16px 24px;
+      text-align: center;
+      z-index: 80;
+      box-shadow: 0 0 50px #ffd700, 0 10px 30px rgba(0,0,0,0.8);
+      pointer-events: none;
+      transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .big-win-overlay.show {
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    .big-win-title {
+      font-size: 24px;
+      font-weight: 900;
+      color: #380105;
+      text-shadow: 0 1px 2px #fff;
+      letter-spacing: 2px;
+    }
+
+    .big-win-amount {
+      font-size: 28px;
+      font-weight: 900;
+      color: #ffffdd;
+      text-shadow: 0 2px 8px #000;
+      margin-top: 4px;
+    }
+
+    /* Modo Recarregamento de Créditos */
+    .recharge-toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: #008037;
+      color: #fff;
+      border: 2px solid #a3ffc2;
+      padding: 10px 20px;
+      border-radius: 30px;
+      font-size: 13px;
+      font-weight: bold;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+      transition: transform 0.4s ease;
+      z-index: 150;
+      white-space: nowrap;
+    }
+    .recharge-toast.show {
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Canvas para partículas de vitória -->
+  <canvas id="celebrationCanvas"></canvas>
+
+  <!-- Container Principal do Jogo -->
+  <main class="game-wrapper" role="region" aria-label="Jogo de Caça-Níquel Fortune Tiger">
+    <!-- Ornamentos dourados nos cantos -->
+    <div class="corner-ornament corner-tl"></div>
+    <div class="corner-ornament corner-tr"></div>
+    <div class="corner-ornament corner-bl"></div>
+    <div class="corner-ornament corner-br"></div>
+
+    <!-- Barra de Controle Superior -->
+    <header class="top-bar">
+      <button class="icon-btn" id="paytableBtn" title="Tabela de Pagamentos e Regras" aria-label="Tabela de Pagamentos">
+        📋
+      </button>
+
+      <div class="fortune-banner" id="fortuneBanner">
+        ⭐ FORTUNA DO TIGRE 10X ⭐
+      </div>
+
+      <button class="icon-btn" id="soundToggleBtn" title="Ativar/Desativar Som" aria-label="Controle de Áudio">
+        🔊
+      </button>
+    </header>
+
+    <!-- Seção do Mascote Tigre da Fortuna -->
+    <section class="header-section">
+      <div class="tiger-avatar-container" id="tigerAvatar" title="Clique no Tigre da Fortuna!">
+        <div class="tiger-speech" id="tigerSpeech">Boa sorte! 🍀</div>
+
+        <!-- 1. Aura Celestial Dourada Rotativa de Fundo -->
+        <svg class="tiger-aura-bg" viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="80" cy="80" r="68" fill="url(#auraGrad)" opacity="0.3"/>
+          <!-- Raios de luz rotativos -->
+          <g opacity="0.8">
+            <polygon points="80,10 75,80 85,80" fill="url(#rayGrad)"/>
+            <polygon points="80,150 75,80 85,80" fill="url(#rayGrad)"/>
+            <polygon points="10,80 80,75 80,85" fill="url(#rayGrad)"/>
+            <polygon points="150,80 80,75 80,85" fill="url(#rayGrad)"/>
+            <polygon points="30,30 77,75 83,81" fill="url(#rayGrad)"/>
+            <polygon points="130,130 77,75 83,81" fill="url(#rayGrad)"/>
+            <polygon points="130,30 77,81 83,75" fill="url(#rayGrad)"/>
+            <polygon points="30,130 77,81 83,75" fill="url(#rayGrad)"/>
+          </g>
+          <defs>
+            <radialGradient id="auraGrad" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#FFF2A3" stop-opacity="0.8"/>
+              <stop offset="50%" stop-color="#FFD700" stop-opacity="0.4"/>
+              <stop offset="100%" stop-color="#B8860B" stop-opacity="0"/>
+            </radialGradient>
+            <linearGradient id="rayGrad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#FFE89C" stop-opacity="0.9"/>
+              <stop offset="100%" stop-color="#D4AF37" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+        </svg>
+
+        <!-- 2. Mascote Tigre da Fortuna Completo com Camadas Animadas -->
+        <svg class="tiger-svg" id="tigerSvg" viewBox="0 0 130 130" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <!-- Degradê da pelagem do tigre -->
+            <radialGradient id="tgFur" cx="50%" cy="40%" r="60%">
+              <stop offset="0%" stop-color="#FFAE34"/>
+              <stop offset="75%" stop-color="#F39C12"/>
+              <stop offset="100%" stop-color="#C56700"/>
+            </radialGradient>
+            <!-- Degradê do colete imperial vermelho -->
+            <linearGradient id="tgVest" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#E53935"/>
+              <stop offset="100%" stop-color="#8E0000"/>
+            </linearGradient>
+            <!-- Degradê dourado metálico para o lingote e joias -->
+            <linearGradient id="tgGold" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#FFF9C4"/>
+              <stop offset="45%" stop-color="#FFD700"/>
+              <stop offset="100%" stop-color="#B8860B"/>
+            </linearGradient>
+            <!-- Máscara de corte para o reflexo dos óculos escuros -->
+            <clipPath id="glassesClip">
+              <polygon points="32,56 60,56 56,73 38,73"/>
+              <polygon points="70,56 98,56 92,73 74,73"/>
+            </clipPath>
+          </defs>
+
+          <!-- A. Rabinho Peludo Listrado -->
+          <g class="tiger-tail-anim" id="tigerTail">
+            <path d="M26 95 C14 85 8 68 18 56 C22 52 26 54 24 60 C18 70 24 82 32 88 Z" fill="url(#tgFur)" stroke="#A05000" stroke-width="1.5"/>
+            <!-- Listras do rabo -->
+            <path d="M14 74 L21 72 M16 64 L22 66 M18 82 L26 80" stroke="#3D1A00" stroke-width="2.5" stroke-linecap="round"/>
+            <!-- Ponta fofa branca do rabo -->
+            <circle cx="21" cy="55" r="5" fill="#FFF9E6"/>
+          </g>
+
+          <!-- B. Corpo com Colete Imperial Vermelho Bordado -->
+          <g class="tiger-body-anim" id="tigerBody">
+            <!-- Tronco -->
+            <ellipse cx="65" cy="104" rx="35" ry="24" fill="url(#tgFur)" stroke="#A05000" stroke-width="1.5"/>
+            <!-- Colete Chinês Imperial -->
+            <path d="M38 92 C42 114 88 114 92 92 C88 88 42 88 38 92 Z" fill="url(#tgVest)" stroke="#FFD700" stroke-width="1.8"/>
+            <!-- Gola e Abotoadura Tradicional Chinesa -->
+            <path d="M65 90 L65 112" stroke="#FFD700" stroke-width="2"/>
+            <circle cx="65" cy="96" r="2.5" fill="#FFD700"/>
+            <circle cx="65" cy="104" r="2.5" fill="#FFD700"/>
+            <!-- Bordado dourado nas laterais do colete -->
+            <path d="M42 98 Q48 106 44 112 M88 98 Q82 106 86 112" stroke="#FFD700" stroke-width="1.5" fill="none"/>
+            <!-- Colar com Moeda da Sorte -->
+            <circle cx="65" cy="88" r="8" fill="url(#tgGold)" stroke="#8A6500" stroke-width="1.5"/>
+            <rect x="62" y="85" width="6" height="6" fill="#8A6500"/>
+          </g>
+
+          <!-- C. Cabeça e Rosto Expressivo -->
+          <g class="tiger-head-anim" id="tigerHead">
+            <!-- Orelha Esquerda Animada -->
+            <g class="tiger-ear-left-anim">
+              <circle cx="34" cy="34" r="16" fill="url(#tgFur)" stroke="#A05000" stroke-width="2"/>
+              <circle cx="34" cy="34" r="9" fill="#E53935"/>
+              <path d="M30 26 Q36 30 32 38" stroke="#FFF9E6" stroke-width="2" stroke-linecap="round" fill="none"/>
+            </g>
+
+            <!-- Orelha Direita Animada -->
+            <g class="tiger-ear-right-anim">
+              <circle cx="96" cy="34" r="16" fill="url(#tgFur)" stroke="#A05000" stroke-width="2"/>
+              <circle cx="96" cy="34" r="9" fill="#E53935"/>
+              <path d="M100 26 Q94 30 98 38" stroke="#FFF9E6" stroke-width="2" stroke-linecap="round" fill="none"/>
+            </g>
+
+            <!-- Formato da Cabeça -->
+            <ellipse cx="65" cy="65" rx="46" ry="40" fill="url(#tgFur)" stroke="#A05000" stroke-width="2"/>
+
+            <!-- Bochechas com pelagem branca macia -->
+            <ellipse cx="44" cy="76" rx="16" ry="12" fill="#FFFBF0"/>
+            <ellipse cx="86" cy="76" rx="16" ry="12" fill="#FFFBF0"/>
+            <circle cx="36" cy="78" r="5" fill="#FFA8A8" opacity="0.6"/>
+            <circle cx="94" cy="78" r="5" fill="#FFA8A8" opacity="0.6"/>
+
+            <!-- Listras do Tigre na Testa (Ideograma Real 王 - Rei) -->
+            <g id="tigerStripesForehead">
+              <line x1="56" y1="30" x2="74" y2="30" stroke="#3D1A00" stroke-width="2.5" stroke-linecap="round"/>
+              <line x1="59" y1="35" x2="71" y2="35" stroke="#3D1A00" stroke-width="2.2" stroke-linecap="round"/>
+              <line x1="53" y1="41" x2="77" y2="41" stroke="#3D1A00" stroke-width="2.5" stroke-linecap="round"/>
+              <line x1="65" y1="28" x2="65" y2="43" stroke="#3D1A00" stroke-width="2.5" stroke-linecap="round"/>
+            </g>
+
+            <!-- Listras laterais do rosto -->
+            <path d="M22 60 L34 62 L24 68 Z" fill="#3D1A00"/>
+            <path d="M108 60 L96 62 L106 68 Z" fill="#3D1A00"/>
+
+            <!-- Óculos Escuros VIP Dourados com Brilho Passante -->
+            <g id="tigerGlassesGroup">
+              <!-- Armação Dourada -->
+              <rect x="52" y="58" width="26" height="5" rx="2" fill="url(#tgGold)" stroke="#7A5200" stroke-width="1.2"/>
+              <polygon points="30,54 62,54 58,74 36,74" fill="#151515" stroke="url(#tgGold)" stroke-width="2.5"/>
+              <polygon points="68,54 100,54 94,74 72,74" fill="#151515" stroke="url(#tgGold)" stroke-width="2.5"/>
+
+              <!-- Reflexo de Luz Animado que corre pelas lentes -->
+              <g clip-path="url(#glassesClip)">
+                <g class="sunglass-gleam-anim">
+                  <polygon points="35,45 48,45 35,85 22,85" fill="rgba(255,255,255,0.7)"/>
+                  <line x1="52" y1="45" x2="42" y2="85" stroke="rgba(255,255,255,0.4)" stroke-width="2"/>
+                  <polygon points="75,45 88,45 75,85 62,85" fill="rgba(255,255,255,0.7)"/>
+                  <line x1="92" y1="45" x2="82" y2="85" stroke="rgba(255,255,255,0.4)" stroke-width="2"/>
+                </g>
+              </g>
+            </g>
+
+            <!-- Nariz e Focinho Fofo -->
+            <polygon points="61,72 69,72 65,77" fill="#E53935"/>
+            <!-- Boca e Sorriso do Tigre -->
+            <path d="M65 77 L65 82 M65 82 Q58 87 50 82 M65 82 Q72 87 80 82" stroke="#3D1A00" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+            <!-- Dentinhos caninos pontudos fofos -->
+            <polygon points="53,82 56,86 57,82" fill="#FFF"/>
+            <polygon points="77,82 74,86 73,82" fill="#FFF"/>
+
+            <!-- Bigodes vibrantes -->
+            <line x1="36" y1="77" x2="18" y2="74" stroke="#3D1A00" stroke-width="1.8" stroke-linecap="round"/>
+            <line x1="36" y1="81" x2="20" y2="84" stroke="#3D1A00" stroke-width="1.8" stroke-linecap="round"/>
+            <line x1="94" y1="77" x2="112" y2="74" stroke="#3D1A00" stroke-width="1.8" stroke-linecap="round"/>
+            <line x1="94" y1="81" x2="110" y2="84" stroke="#3D1A00" stroke-width="1.8" stroke-linecap="round"/>
+          </g>
+
+          <!-- D. Patinhas Segurando o Lingote de Ouro (Yuanbao) -->
+          <g class="tiger-paws-anim" id="tigerHands">
+            <!-- Lingote de Ouro com Levitação Animada -->
+            <g class="tiger-ingot-anim" id="tigerIngot">
+              <!-- Base em barco do Yuanbao chinês -->
+              <path d="M48 100 C48 94 82 94 82 100 L78 107 C78 111 52 111 52 107 Z" fill="url(#tgGold)" stroke="#A07800" stroke-width="1.5"/>
+              <ellipse cx="65" cy="98" rx="14" ry="5" fill="#FFE885" stroke="#A07800" stroke-width="1"/>
+              <circle cx="65" cy="98" r="3" fill="#D4AF37"/>
+              <!-- Brilhos estelares no ouro -->
+              <polygon points="56,95 57,97 59,97 58,98 58,100 56,99 55,100 55,98 54,97 56,97" fill="#FFFFFF"/>
+              <polygon points="74,96 75,97 76,97 75,98 76,99 74,98 73,99 74,98 73,97 74,97" fill="#FFFFFF"/>
+            </g>
+
+            <!-- Pata Esquerda -->
+            <circle cx="46" cy="102" r="7" fill="url(#tgFur)" stroke="#A05000" stroke-width="1.5"/>
+            <ellipse cx="46" cy="101" rx="4" ry="3" fill="#FFF9E6"/>
+            <!-- Pata Direita -->
+            <circle cx="84" cy="102" r="7" fill="url(#tgFur)" stroke="#A05000" stroke-width="1.5"/>
+            <ellipse cx="84" cy="101" rx="4" ry="3" fill="#FFF9E6"/>
+          </g>
+        </svg>
+      </div>
+
+      <div class="title-box">
+        <h1 class="game-title">FORTUNE TIGER</h1>
+        <div class="game-subtitle">✦ O TIGRE DA SORTE ✦</div>
+      </div>
+    </section>
+
+    <!-- Barra Seletora de Algoritmo de Probabilidade -->
+    <div class="volatility-bar">
+      <button class="volatility-pill" id="volatilityBtn" title="Clique para alternar o algoritmo de dificuldade (Probabilidade de Ganho)">
+        🎰 ALGORITMO: CASSINO REAL (CASA GANHA ~88% RTP)
+      </button>
+    </div>
+
+    <!-- Gabinete dos Rolos (3 Colunas x 3 Linhas) -->
+    <section class="slot-cabinet" aria-label="Rolos do Caça-Níquel">
+      <!-- Indicadores da Linha Central de Pagamento (Payline) -->
+      <div class="payline-tag-left" title="Linha de Pagamento Central">►</div>
+      <div class="payline-tag-right" title="Linha de Pagamento Central">◄</div>
+      <div class="payline-highlight" id="paylineHighlight"></div>
+
+      <!-- Container dos 3 Rolos -->
+      <div class="reels-container" id="reelsContainer">
+        <!-- Rolo 1 -->
+        <div class="reel" id="reel0">
+          <div class="reel-strip" id="reelStrip0"></div>
+        </div>
+        <!-- Rolo 2 -->
+        <div class="reel" id="reel1">
+          <div class="reel-strip" id="reelStrip1"></div>
+        </div>
+        <!-- Rolo 3 -->
+        <div class="reel" id="reel2">
+          <div class="reel-strip" id="reelStrip2"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Painel de Status / Mensagens Dinâmicas -->
+    <div class="status-display">
+      <div class="status-text" id="statusMessage">Faça sua aposta e clique em GIRAR!</div>
+    </div>
+
+    <!-- HUD de Valores: Saldo e Último Ganho -->
+    <div class="dashboard">
+      <div class="hud-card">
+        <div class="hud-title">🪙 SALDO TOTAL</div>
+        <div class="hud-value gold" id="balanceDisplay">R$ 1.000,00</div>
+      </div>
+
+      <div class="hud-card">
+        <div class="hud-title">🏆 ÚLTIMO PRÊMIO</div>
+        <div class="hud-value gold" id="winDisplay">R$ 0,00</div>
+      </div>
+
+      <!-- Ajuste de Aposta -->
+      <div class="bet-controller">
+        <div class="bet-label-group">
+          <span class="hud-title">💰 VALOR DA APOSTA</span>
+          <span class="hud-value" id="betDisplay">R$ 10,00</span>
+        </div>
+        <div class="bet-buttons-group">
+          <button class="bet-btn" id="betDecreaseBtn" title="Diminuir Aposta" aria-label="Diminuir aposta">−</button>
+          <button class="bet-btn" id="betIncreaseBtn" title="Aumentar Aposta" aria-label="Aumentar aposta">+</button>
+          <button class="max-btn" id="betMaxBtn" title="Aposta Máxima">MÁX</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Linha de Ação: Auto, Girar 3D, Turbo -->
+    <div class="action-row">
+      <!-- Botão Modo Turbo -->
+      <button class="aux-btn" id="turboToggleBtn" title="Modo Turbo (Giro Rápido)" aria-label="Ativar Modo Turbo">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path d="M7 2v11h3v9l7-12h-4l4-8z"/>
+        </svg>
+        <span>TURBO</span>
+      </button>
+
+      <!-- Botão Central de Girar 3D -->
+      <div class="spin-button-container">
+        <button class="spin-btn" id="spinBtn" aria-label="Girar Caça-Níquel">
+          <span class="spin-btn-icon">☸</span>
+          <span id="spinBtnText">GIRAR</span>
+        </button>
+      </div>
+
+      <!-- Botão Giro Automático -->
+      <button class="aux-btn" id="autoSpinBtn" title="Giro Automático" aria-label="Giro Automático">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46A7.93 7.93 0 0020 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74A7.93 7.93 0 004 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/>
+        </svg>
+        <span id="autoSpinText">AUTO</span>
+      </button>
+    </div>
+  </main>
+
+  <!-- Banner de Vitória Grande Popup -->
+  <div class="big-win-overlay" id="bigWinOverlay">
+    <div class="big-win-title" id="bigWinTitle">GRANDE VITÓRIA!</div>
+    <div class="big-win-amount" id="bigWinAmount">R$ 500,00</div>
+  </div>
+
+  <!-- Toast de Recarga Automática de Créditos -->
+  <div class="recharge-toast" id="rechargeToast">
+    🧧 Bônus do Tigre: +R$ 500,00 em créditos concedidos!
+  </div>
+
+  <!-- Modal de Tabela de Pagamentos (Paytable) -->
+  <div class="modal-overlay" id="paytableModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modalTitle">TABELA DE PAGAMENTOS</h2>
+        <button class="close-modal-btn" id="closeModalBtn" aria-label="Fechar">&times;</button>
+      </div>
+
+      <div class="paytable-grid" id="paytableGrid">
+        <!-- Preenchido dinamicamente pelo JavaScript -->
+      </div>
+
+      <div class="rules-list">
+        <strong>REGRAS DO JOGO & MATEMÁTICA:</strong>
+        <p>• <strong>Linha Central de Pagamento:</strong> O objetivo é alinhar 3 símbolos na linha central destacada.</p>
+        <p>• <strong>Combinações Vencedoras:</strong> Apenas <strong>3 símbolos iguais</strong> na linha pagam prêmio completo (ou combinados com o Tigre Wild). Símbolos comuns não pagam com 2 iguais.</p>
+        <p>• <strong>🐯 Tigre da Fortuna (Wild):</strong> Substitui qualquer símbolo para formar trincas e paga o Jackpot de 50x para 3 tigres. Se saírem 2 tigres na linha, paga 2x.</p>
+        <p>• <strong>Vantagem da Casa (House Edge):</strong> O algoritmo é calibrado com matemática de caça-níquel real (~88% a 92% RTP), onde a banca tem vantagem probabilística a longo prazo.</p>
+        <p>• <strong>Seletor de Algoritmo:</strong> Alterne entre Modo Cassino Real, Dreno Hardcore ou Modo Arcade Fácil no botão superior.</p>
+        <p>• Simulação fictícia com créditos virtuais para entretenimento. Se o saldo zerar, um bônus da sorte é recarregado.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- =====================================================
+       CÓDIGO JAVASCRIPT DO JOGO
+       ===================================================== -->
+  <script>
+    /* =====================================================
+       1. DEFINIÇÃO DOS SÍMBOLOS, PESOS E MULTIPLICADORES
+       ===================================================== */
+    const SYMBOLS = {
+      tiger: {
+        id: 'tiger',
+        name: 'Tigre Wild',
+        weight: 3,          // Mais raro (Wild / Jackpot)
+        payout3: 75,        // 3 símbolos = 75x a aposta (Super Jackpot!)
+        payout2: 5.0,       // 2 símbolos = 5x a aposta
+        isWild: true,
+        svg: `<svg viewBox="0 0 100 100" fill="none">
+          <circle cx="28" cy="28" r="14" fill="#F39C12" stroke="#B86500" stroke-width="3"/>
+          <circle cx="28" cy="28" r="8" fill="#E74C3C"/>
+          <circle cx="72" cy="28" r="14" fill="#F39C12" stroke="#B86500" stroke-width="3"/>
+          <circle cx="72" cy="28" r="8" fill="#E74C3C"/>
+          <ellipse cx="50" cy="54" rx="38" ry="34" fill="#F39C12" stroke="#B86500" stroke-width="3"/>
+          <ellipse cx="34" cy="64" rx="14" ry="10" fill="#FFF8E7"/>
+          <ellipse cx="66" cy="64" rx="14" ry="10" fill="#FFF8E7"/>
+          <path d="M50 24 L46 32 L54 32 Z" fill="#3D1A00"/>
+          <path d="M50 34 L45 42 L55 42 Z" fill="#3D1A00"/>
+          <polygon points="24,46 46,46 42,58 28,58" fill="#111" stroke="#FFD700" stroke-width="2"/>
+          <polygon points="54,46 76,46 72,58 58,58" fill="#111" stroke="#FFD700" stroke-width="2"/>
+          <line x1="46" y1="48" x2="54" y2="48" stroke="#FFD700" stroke-width="2"/>
+          <polygon points="47,62 53,62 50,66" fill="#E74C3C"/>
+          <path d="M50 66 Q44 72 38 68 M50 66 Q56 72 62 68" stroke="#3D1A00" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="50" cy="88" r="9" fill="#FFD700" stroke="#B8860B" stroke-width="2"/>
+          <rect x="47" y="85" width="6" height="6" fill="#B8860B"/>
+        </svg>`
+      },
+      envelope: {
+        id: 'envelope',
+        name: 'Envelope',
+        weight: 6,
+        payout3: 35,        // 3 símbolos = 35x
+        payout2: 2.5,       // 2 símbolos = 2.5x
+        isWild: false,
+        svg: `<svg viewBox="0 0 100 100" fill="none">
+          <rect x="20" y="15" width="60" height="70" rx="8" fill="#D32F2F" stroke="#FFD700" stroke-width="3"/>
+          <!-- Aba do envelope -->
+          <path d="M20 20 L50 48 L80 20" stroke="#FFD700" stroke-width="3" fill="#B71C1C"/>
+          <!-- Selo dourado com 福 (Fu) -->
+          <circle cx="50" cy="52" r="16" fill="#FFD700" stroke="#B8860B" stroke-width="2"/>
+          <text x="50" y="58" font-family="'Cinzel', serif" font-size="16" font-weight="900" fill="#B71C1C" text-anchor="middle">福</text>
+        </svg>`
+      },
+      coin: {
+        id: 'coin',
+        name: 'Moeda Ouro',
+        weight: 9,
+        payout3: 20,        // 3 símbolos = 20x
+        payout2: 1.8,       // 2 símbolos = 1.8x
+        isWild: false,
+        svg: `<svg viewBox="0 0 100 100" fill="none">
+          <circle cx="50" cy="50" r="38" fill="url(#coinGrad)" stroke="#B8860B" stroke-width="3"/>
+          <circle cx="50" cy="50" r="30" stroke="#FFE89C" stroke-width="1.5" stroke-dasharray="3 3"/>
+          <rect x="40" y="40" width="20" height="20" fill="#7A5200" stroke="#FFD700" stroke-width="2"/>
+          <defs>
+            <radialGradient id="coinGrad" cx="40%" cy="40%" r="60%">
+              <stop offset="0%" stop-color="#FFF2A3"/>
+              <stop offset="60%" stop-color="#FFD700"/>
+              <stop offset="100%" stop-color="#B8860B"/>
+            </radialGradient>
+          </defs>
+        </svg>`
+      },
+      bell: {
+        id: 'bell',
+        name: 'Sino Ouro',
+        weight: 14,
+        payout3: 14,        // 3 símbolos = 14x
+        payout2: 1.2,       // 2 símbolos = 1.2x
+        isWild: false,
+        svg: `<svg viewBox="0 0 100 100" fill="none">
+          <path d="M50 16 C34 16 30 38 24 58 C20 70 18 72 16 74 L84 74 C82 72 80 70 76 58 C70 38 66 16 50 16 Z" fill="url(#bellGrad)" stroke="#B8860B" stroke-width="3"/>
+          <circle cx="50" cy="14" r="6" fill="#B8860B"/>
+          <ellipse cx="50" cy="74" rx="34" ry="7" fill="#DAA520" stroke="#B8860B" stroke-width="2"/>
+          <circle cx="50" cy="78" r="9" fill="#996515" stroke="#FFD700" stroke-width="2"/>
+          <!-- Fita vermelha decorativa -->
+          <path d="M46 22 L40 34 M54 22 L60 34" stroke="#D32F2F" stroke-width="3" stroke-linecap="round"/>
+          <defs>
+            <linearGradient id="bellGrad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#FFF9C4"/>
+              <stop offset="50%" stop-color="#FBC02D"/>
+              <stop offset="100%" stop-color="#F57F17"/>
+            </linearGradient>
+          </defs>
+        </svg>`
+      },
+      seven: {
+        id: 'seven',
+        name: 'Sete 7',
+        weight: 18,
+        payout3: 10,        // 3 símbolos = 10x
+        payout2: 1.0,       // 2 símbolos = 1.0x (devolve aposta)
+        isWild: false,
+        svg: `<svg viewBox="0 0 100 100" fill="none">
+          <!-- Sombra do 7 -->
+          <path d="M26 24 L76 24 L48 84 L34 84 L56 38 L26 38 Z" fill="#400000"/>
+          <!-- 7 Dourado / Vermelho flamejante -->
+          <path d="M24 20 L76 20 L48 82 L34 82 L58 34 L24 34 Z" fill="url(#sevenGrad)" stroke="#FFD700" stroke-width="3"/>
+          <!-- Estrelas no 7 -->
+          <polygon points="34,26 37,28 35,31 38,29 40,32 40,28 43,26 39,26 38,23 37,26" fill="#FFFFFF"/>
+          <defs>
+            <linearGradient id="sevenGrad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#FF5252"/>
+              <stop offset="50%" stop-color="#D50000"/>
+              <stop offset="100%" stop-color="#7F0000"/>
+            </linearGradient>
+          </defs>
+        </svg>`
+      },
+      orange: {
+        id: 'orange',
+        name: 'Mandarina',
+        weight: 26,
+        payout3: 6,         // 3 símbolos = 6x
+        payout2: 0.5,       // 2 símbolos = 0.5x
+        isWild: false,
+        svg: `<svg viewBox="0 0 100 100" fill="none">
+          <!-- Folhas -->
+          <path d="M50 28 C45 16 32 16 26 22 C24 32 38 32 50 28 Z" fill="#2E7D32" stroke="#1B5E20" stroke-width="2"/>
+          <path d="M50 28 C55 16 68 16 74 22 C76 32 62 32 50 28 Z" fill="#388E3C" stroke="#1B5E20" stroke-width="2"/>
+          <circle cx="50" cy="30" r="3" fill="#5D4037"/>
+          <!-- Fruta Laranja -->
+          <circle cx="50" cy="58" r="32" fill="url(#orangeGrad)" stroke="#D84315" stroke-width="3"/>
+          <!-- Brilho na fruta -->
+          <ellipse cx="40" cy="48" rx="8" ry="5" fill="rgba(255,255,255,0.4)" transform="rotate(-25 40 48)"/>
+          <defs>
+            <radialGradient id="orangeGrad" cx="40%" cy="40%" r="60%">
+              <stop offset="0%" stop-color="#FFB74D"/>
+              <stop offset="70%" stop-color="#FF9800"/>
+              <stop offset="100%" stop-color="#E65100"/>
+            </radialGradient>
+          </defs>
+        </svg>`
+      }
+    };
+
+    // Array ponderado para sorteios aleatórios realistas
+    const SYMBOL_POOL = [];
+    Object.keys(SYMBOLS).forEach(key => {
+      const sym = SYMBOLS[key];
+      for (let i = 0; i < sym.weight; i++) {
+        SYMBOL_POOL.push(sym.id);
+      }
+    });
+
+    /* =====================================================
+       2. GERENCIADOR DE ÁUDIO SINTETIZADO (Web Audio API)
+       ===================================================== */
+    class SoundManager {
+      constructor() {
+        this.ctx = null;
+        this.muted = false;
+      }
+
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) {
+            this.ctx = new AudioContext();
+          }
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+
+      toggleMute() {
+        this.muted = !this.muted;
+        return !this.muted;
+      }
+
+      playTone(freq, type = 'sine', duration = 0.1, gainVal = 0.15) {
+        if (this.muted) return;
+        this.init();
+        if (!this.ctx) return;
+
+        try {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+
+          gain.gain.setValueAtTime(gainVal, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+
+          osc.start();
+          osc.stop(this.ctx.currentTime + duration);
+        } catch (e) {
+          console.error(e);
+        }
+      }
+
+      playSpinStart() {
+        if (this.muted) return;
+        this.init();
+        if (!this.ctx) return;
+        try {
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(260, now);
+          osc.frequency.exponentialRampToValueAtTime(780, now + 0.25);
+          gain.gain.setValueAtTime(0.2, now);
+          gain.gain.linearRampToValueAtTime(0.001, now + 0.25);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.25);
+        } catch (e) {}
+      }
+
+      playReelStop(reelIndex) {
+        if (this.muted) return;
+        this.init();
+        if (!this.ctx) return;
+        try {
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          // Tom diminui levemente a cada rolo simulando engate mecânico
+          const freq = 140 - (reelIndex * 20);
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, now);
+          osc.frequency.exponentialRampToValueAtTime(40, now + 0.12);
+
+          gain.gain.setValueAtTime(0.3, now);
+          gain.gain.linearRampToValueAtTime(0.001, now + 0.12);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.12);
+
+          // Clique agudo do relógio mecânico
+          this.playTone(850, 'square', 0.03, 0.08);
+        } catch (e) {}
+      }
+
+      playWin() {
+        if (this.muted) return;
+        this.init();
+        // Fanfarra alegre arpegiada
+        const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+        notes.forEach((freq, idx) => {
+          setTimeout(() => {
+            this.playTone(freq, 'sine', 0.25, 0.25);
+          }, idx * 100);
+        });
+      }
+
+      playBigWin() {
+        if (this.muted) return;
+        this.init();
+        const chordProgression = [
+          [523.25, 659.25, 783.99],
+          [587.33, 739.99, 880.00],
+          [659.25, 830.61, 987.77],
+          [783.99, 1046.50, 1318.51]
+        ];
+
+        chordProgression.forEach((chord, step) => {
+          setTimeout(() => {
+            chord.forEach(f => this.playTone(f, 'triangle', 0.4, 0.15));
+            // Moedas caindo
+            this.playTone(2000 + Math.random() * 1500, 'sine', 0.1, 0.1);
+          }, step * 200);
+        });
+      }
+
+      playClick() {
+        this.playTone(600, 'sine', 0.04, 0.08);
+      }
+
+      playFortuneRoar() {
+        if (this.muted) return;
+        this.init();
+        if (!this.ctx) return;
+        try {
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(100, now);
+          osc.frequency.linearRampToValueAtTime(280, now + 0.25);
+          osc.frequency.linearRampToValueAtTime(70, now + 0.6);
+
+          gain.gain.setValueAtTime(0.25, now);
+          gain.gain.linearRampToValueAtTime(0.001, now + 0.6);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.6);
+        } catch (e) {}
+      }
+    }
+
+    /* =====================================================
+       3. SISTEMA DE PARTÍCULAS E CONFETES
+       ===================================================== */
+    class CelebrationEffects {
+      constructor(canvas) {
+        this.canvas = canvas;
+        this.ctx = canvas.getContext('2d');
+        this.particles = [];
+        this.active = false;
+        this.resize();
+        window.addEventListener('resize', () => this.resize());
+      }
+
+      resize() {
+        this.canvas.width = window.innerWidth;
+        this.canvas.height = window.innerHeight;
+      }
+
+      spawn(isBigWin = false) {
+        this.resize();
+        const count = isBigWin ? 100 : 45;
+        const colors = ['#FFD700', '#FFA500', '#FF4500', '#FF0000', '#FFF8DC', '#00E676'];
+
+        for (let i = 0; i < count; i++) {
+          this.particles.push({
+            x: this.canvas.width * 0.5 + (Math.random() - 0.5) * 160,
+            y: this.canvas.height * 0.45,
+            vx: (Math.random() - 0.5) * 12,
+            vy: (Math.random() * -14) - 4,
+            size: Math.random() * 8 + 6,
+            color: colors[Math.floor(Math.random() * colors.length)],
+            rotation: Math.random() * 360,
+            rotSpeed: (Math.random() - 0.5) * 15,
+            gravity: 0.35,
+            life: 1.0,
+            decay: Math.random() * 0.015 + 0.008,
+            shape: Math.random() > 0.4 ? 'coin' : 'confetti'
+          });
+        }
+
+        if (!this.active) {
+          this.active = true;
+          this.animate();
+        }
+      }
+
+      animate() {
+        if (!this.active) return;
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+        for (let i = this.particles.length - 1; i >= 0; i--) {
+          const p = this.particles[i];
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += p.gravity;
+          p.rotation += p.rotSpeed;
+          p.life -= p.decay;
+
+          if (p.life <= 0 || p.y > this.canvas.height) {
+            this.particles.splice(i, 1);
+            continue;
+          }
+
+          this.ctx.save();
+          this.ctx.translate(p.x, p.y);
+          this.ctx.rotate((p.rotation * Math.PI) / 180);
+          this.ctx.globalAlpha = Math.max(0, p.life);
+
+          if (p.shape === 'coin') {
+            // Moeda Dourada brilhante
+            this.ctx.beginPath();
+            this.ctx.arc(0, 0, p.size, 0, Math.PI * 2);
+            this.ctx.fillStyle = '#FFD700';
+            this.ctx.fill();
+            this.ctx.lineWidth = 1.5;
+            this.ctx.strokeStyle = '#B8860B';
+            this.ctx.stroke();
+
+            // Quadrado interno da moeda chinesa
+            this.ctx.fillStyle = '#7A5200';
+            this.ctx.fillRect(-p.size * 0.3, -p.size * 0.3, p.size * 0.6, p.size * 0.6);
+          } else {
+            // Confete retangular
+            this.ctx.fillStyle = p.color;
+            this.ctx.fillRect(-p.size / 2, -p.size / 4, p.size, p.size / 2);
+          }
+
+          this.ctx.restore();
+        }
+
+        if (this.particles.length > 0) {
+          requestAnimationFrame(() => this.animate());
+        } else {
+          this.active = false;
+          this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        }
+      }
+    }
+
+    /* =====================================================
+       4. MOTOR PRINCIPAL DO JOGO (SlotEngine)
+       ===================================================== */
+    class FortuneTigerGame {
+      constructor() {
+        // Estado Financeiro
+        this.balance = 1000.00;
+        this.betSteps = [1, 2, 5, 10, 20, 50, 100, 200];
+        this.currentBetIndex = 3; // R$ 10 padrão
+        this.lastWin = 0.00;
+
+        // Estado do Jogo
+        this.isSpinning = false;
+        this.autoSpinActive = false;
+        this.autoSpinsRemaining = 0;
+        this.turboMode = false;
+        this.volatilityMode = 'casino'; // 'casino' (RTP ~88%), 'hardcore' (RTP ~72%), 'easy' (RTP ~98%)
+        this.rowHeight = 90; // pixels de cada célula
+
+        // Configuração dos 3 Rolos (cada rolo tem 3 linhas visíveis: topo, centro, base)
+        this.visibleRows = 3;
+        this.reelStates = [
+          ['orange', 'bell', 'coin'],
+          ['seven', 'tiger', 'envelope'],
+          ['coin', 'orange', 'seven']
+        ];
+
+        // Módulos Auxiliares
+        this.sound = new SoundManager();
+        this.effects = new CelebrationEffects(document.getElementById('celebrationCanvas'));
+
+        // Elementos de UI
+        this.initDomElements();
+        this.buildPaytable();
+        this.renderInitialReels();
+        this.updateHUD();
+        this.attachEventListeners();
+      }
+
+      initDomElements() {
+        this.balanceEl = document.getElementById('balanceDisplay');
+        this.betEl = document.getElementById('betDisplay');
+        this.winEl = document.getElementById('winDisplay');
+        this.statusEl = document.getElementById('statusMessage');
+        this.spinBtn = document.getElementById('spinBtn');
+        this.spinBtnText = document.getElementById('spinBtnText');
+        this.betDecreaseBtn = document.getElementById('betDecreaseBtn');
+        this.betIncreaseBtn = document.getElementById('betIncreaseBtn');
+        this.betMaxBtn = document.getElementById('betMaxBtn');
+        this.turboBtn = document.getElementById('turboToggleBtn');
+        this.autoBtn = document.getElementById('autoSpinBtn');
+        this.autoBtnText = document.getElementById('autoSpinText');
+        this.soundBtn = document.getElementById('soundToggleBtn');
+        this.volatilityBtn = document.getElementById('volatilityBtn');
+        this.paytableBtn = document.getElementById('paytableBtn');
+        this.paytableModal = document.getElementById('paytableModal');
+        this.closeModalBtn = document.getElementById('closeModalBtn');
+        this.paytableGrid = document.getElementById('paytableGrid');
+        this.paylineHighlight = document.getElementById('paylineHighlight');
+        this.bigWinOverlay = document.getElementById('bigWinOverlay');
+        this.bigWinTitle = document.getElementById('bigWinTitle');
+        this.bigWinAmount = document.getElementById('bigWinAmount');
+        this.rechargeToast = document.getElementById('rechargeToast');
+        this.tigerAvatar = document.getElementById('tigerAvatar');
+        this.tigerSvg = document.getElementById('tigerSvg');
+        this.tigerSpeech = document.getElementById('tigerSpeech');
+        this.fortuneBanner = document.getElementById('fortuneBanner');
+        this.gameWrapper = document.querySelector('.game-wrapper');
+      }
+
+      getCurrentBet() {
+        return this.betSteps[this.currentBetIndex];
+      }
+
+      formatCurrency(val) {
+        return 'R$ ' + val.toFixed(2).replace('.', ',');
+      }
+
+      updateHUD() {
+        this.balanceEl.textContent = this.formatCurrency(this.balance);
+        this.betEl.textContent = this.formatCurrency(this.getCurrentBet());
+        this.winEl.textContent = this.formatCurrency(this.lastWin);
+
+        // Desativação contextual de botões de aposta
+        this.betDecreaseBtn.disabled = this.isSpinning || this.currentBetIndex === 0;
+        this.betIncreaseBtn.disabled = this.isSpinning || this.currentBetIndex === this.betSteps.length - 1;
+        this.betMaxBtn.disabled = this.isSpinning || this.currentBetIndex === this.betSteps.length - 1;
+        this.spinBtn.disabled = this.isSpinning;
+      }
+
+      renderSymbolCell(symbolId) {
+        const sym = SYMBOLS[symbolId] || SYMBOLS.orange;
+        return `
+          <div class="symbol-cell" data-symbol="${sym.id}">
+            <div class="symbol-icon">${sym.svg}</div>
+            <div class="symbol-name">${sym.name}</div>
+          </div>
+        `;
+      }
+
+      renderInitialReels() {
+        for (let reelIdx = 0; reelIdx < 3; reelIdx++) {
+          const strip = document.getElementById(`reelStrip${reelIdx}`);
+          const symbols = this.reelStates[reelIdx];
+          strip.innerHTML = symbols.map(id => this.renderSymbolCell(id)).join('');
+          strip.style.transform = 'translateY(0px)';
+        }
+      }
+
+      buildPaytable() {
+        let html = '';
+        Object.keys(SYMBOLS).forEach(key => {
+          const sym = SYMBOLS[key];
+          const wildLabel = sym.isWild ? '<span style="color:#ffd700;font-size:10px;"> [WILD / CORINGA]</span>' : '';
+          const payout2Display = sym.payout2 > 0 ? `${sym.payout2}x` : '<span style="color:#777;">-</span>';
+          html += `
+            <div class="paytable-row">
+              <div class="paytable-sym">
+                <div class="paytable-sym-icon">${sym.svg}</div>
+                <div>
+                  <div class="paytable-sym-desc">${sym.name}${wildLabel}</div>
+                  <div style="font-size:10px; color:#ffb0b0;">Raridade: ${sym.weight <= 5 ? 'Muito Raro' : sym.weight <= 12 ? 'Raro' : 'Comum'}</div>
+                </div>
+              </div>
+              <div class="paytable-payouts">
+                <div class="payout-high">3x = <strong>${sym.payout3}x</strong></div>
+                <div>2x = ${payout2Display}</div>
+              </div>
+            </div>
+          `;
+        });
+        this.paytableGrid.innerHTML = html;
+      }
+
+      showTigerSpeech(text, duration = 2500) {
+        this.tigerSpeech.textContent = text;
+        this.tigerSpeech.classList.add('show');
+        clearTimeout(this.speechTimer);
+        this.speechTimer = setTimeout(() => {
+          this.tigerSpeech.classList.remove('show');
+        }, duration);
+      }
+
+      /* =====================================================
+         LÓGICA DO SORTEIO E LINHA DE PAGAMENTO
+         ===================================================== */
+      getRandomSymbol() {
+        const randIndex = Math.floor(Math.random() * SYMBOL_POOL.length);
+        return SYMBOL_POOL[randIndex];
+      }
+
+      toggleVolatility() {
+        this.sound.playClick();
+        if (this.volatilityMode === 'casino') {
+          this.volatilityMode = 'hardcore';
+          this.volatilityBtn.className = 'volatility-pill hardcore';
+          this.volatilityBtn.innerHTML = '💀 ALGORITMO: DRENO HARDCORE (~72% RTP)';
+          this.showTigerSpeech('Modo Dreno ativado! A casa vai recolher tudo! 💀', 3000);
+          this.statusEl.textContent = 'Modo Hardcore: Raras vitórias, desvios frequentes no Rolo 3.';
+        } else if (this.volatilityMode === 'hardcore') {
+          this.volatilityMode = 'easy';
+          this.volatilityBtn.className = 'volatility-pill easy';
+          this.volatilityBtn.innerHTML = '🎈 ALGORITMO: ARCADE FÁCIL (~98% RTP)';
+          this.showTigerSpeech('Modo Fácil ativado! Forras frequentes liberadas! 🎈', 3000);
+          this.statusEl.textContent = 'Modo Arcade Fácil: 2 símbolos iguais voltam a pagar prêmio!';
+        } else {
+          this.volatilityMode = 'casino';
+          this.volatilityBtn.className = 'volatility-pill';
+          this.volatilityBtn.innerHTML = '🎰 ALGORITMO: CASSINO REAL (CASA GANHA ~88% RTP)';
+          this.showTigerSpeech('Modo Cassino Real ativado! A banca tem vantagem. 🎰', 3000);
+          this.statusEl.textContent = 'Modo Cassino Real: Só 3 iguais pagam. ~80% de giros sem vitória.';
+        }
+      }
+
+      /* Algoritmo de Sorteio com Matemática Real de Caça-Níquel (House Edge & Near Misses) */
+      generateCasinoSpinOutcome() {
+        const r0_top = this.getRandomSymbol();
+        const r0_mid = this.getRandomSymbol();
+        const r0_bot = this.getRandomSymbol();
+
+        const r1_top = this.getRandomSymbol();
+        const r1_mid = this.getRandomSymbol();
+        const r1_bot = this.getRandomSymbol();
+
+        let r2_mid;
+        const roll = Math.random();
+
+        if (this.volatilityMode === 'hardcore') {
+          // No Modo Hardcore: se os dois primeiros baterem, força erro no rolo 3 em 85% das vezes (near miss proposital)
+          const isTwoMatch = (r0_mid === r1_mid || r0_mid === 'tiger' || r1_mid === 'tiger');
+          if (isTwoMatch && roll < 0.85) {
+            const matchingSymbol = (r0_mid !== 'tiger') ? r0_mid : r1_mid;
+            const diffPool = SYMBOL_POOL.filter(s => s !== matchingSymbol && s !== 'tiger');
+            r2_mid = diffPool[Math.floor(Math.random() * diffPool.length)] || this.getRandomSymbol();
+          } else {
+            r2_mid = this.getRandomSymbol();
+          }
+        } else if (this.volatilityMode === 'casino') {
+          // Modo Cassino Real: House edge com ~72% de desvio quando saem 2 iguais (Hit Rate real ~18%)
+          const isTwoMatch = (r0_mid === r1_mid || r0_mid === 'tiger' || r1_mid === 'tiger');
+          if (isTwoMatch && roll < 0.72) {
+            const matchingSymbol = (r0_mid !== 'tiger') ? r0_mid : r1_mid;
+            const diffPool = SYMBOL_POOL.filter(s => s !== matchingSymbol && s !== 'tiger');
+            r2_mid = diffPool[Math.floor(Math.random() * diffPool.length)] || this.getRandomSymbol();
+          } else {
+            r2_mid = this.getRandomSymbol();
+          }
+        } else {
+          // Modo Arcade Fácil: sorteio uniforme
+          r2_mid = this.getRandomSymbol();
+        }
+
+        const r2_top = this.getRandomSymbol();
+        const r2_bot = this.getRandomSymbol();
+
+        return [
+          [r0_top, r0_mid, r0_bot],
+          [r1_top, r1_mid, r1_bot],
+          [r2_top, r2_mid, r2_bot]
+        ];
+      }
+
+      evaluateSpin(finalGrid) {
+        // A Linha de Pagamento Central é o índice 1 de cada rolo
+        const centerLine = [finalGrid[0][1], finalGrid[1][1], finalGrid[2][1]];
+        const currentBet = this.getCurrentBet();
+
+        let totalWin = 0;
+        let isJackpot = false;
+        let winMultiplier = 0;
+        let matchedSymbol = null;
+        let matchCount = 0;
+
+        // 1. Caso especial: 3 Tigres = JACKPOT MÁXIMO
+        if (centerLine.every(s => s === 'tiger')) {
+          winMultiplier = SYMBOLS.tiger.payout3;
+          matchedSymbol = SYMBOLS.tiger;
+          matchCount = 3;
+          isJackpot = true;
+        } else {
+          const nonWilds = centerLine.filter(s => s !== 'tiger');
+
+          if (nonWilds.length === 0) {
+            // Todos são tigres
+            winMultiplier = SYMBOLS.tiger.payout3;
+            matchedSymbol = SYMBOLS.tiger;
+            matchCount = 3;
+          } else {
+            // Verifica se os 3 símbolos casam (símbolo idêntico OU Tigre Wild)
+            const targetSymbolId = nonWilds[0];
+            const targetSymbol = SYMBOLS[targetSymbolId];
+            const isMatch3 = centerLine.every(s => s === targetSymbolId || s === 'tiger');
+
+            if (isMatch3) {
+              winMultiplier = targetSymbol.payout3;
+              matchedSymbol = targetSymbol;
+              matchCount = 3;
+            } else {
+              const tigerCount = centerLine.filter(s => s === 'tiger').length;
+              if (this.volatilityMode === 'easy') {
+                // Modo Arcade Fácil: 2 de qualquer símbolo pagam
+                let countTarget = centerLine.filter(s => s === targetSymbolId || s === 'tiger').length;
+                if (nonWilds.length > 1) {
+                  const target2 = nonWilds[1];
+                  const count2 = centerLine.filter(s => s === target2 || s === 'tiger').length;
+                  if (count2 > countTarget) {
+                    countTarget = count2;
+                    matchedSymbol = SYMBOLS[target2];
+                  }
+                }
+                if (countTarget >= 2) {
+                  matchedSymbol = matchedSymbol || targetSymbol;
+                  winMultiplier = matchedSymbol.payout2 || (matchedSymbol.payout3 * 0.25);
+                  matchCount = 2;
+                }
+              } else {
+                // Modo Cassino Real / Hardcore: SÓ 2 TIGRES WILD pagam consolo (2x a aposta)
+                // Símbolos comuns (Laranja, 7, Sino, Moeda, Envelope) precisam de TRINCA completa para pagar!
+                if (tigerCount === 2) {
+                  matchedSymbol = SYMBOLS.tiger;
+                  winMultiplier = SYMBOLS.tiger.payout2;
+                  matchCount = 2;
+                }
+              }
+            }
+          }
+        }
+
+        // Feature Especial do Tigre da Fortuna: Multiplicador 10x!
+        let fortune10xTriggered = false;
+        let bonusChance = 0.035; // 3.5% no modo real
+        if (this.volatilityMode === 'hardcore') bonusChance = 0.012; // 1.2% no hardcore
+        if (this.volatilityMode === 'easy') bonusChance = 0.10; // 10% no fácil
+
+        if (matchCount === 3 && Math.random() < bonusChance) {
+          fortune10xTriggered = true;
+          winMultiplier *= 10;
+        }
+
+        totalWin = currentBet * winMultiplier;
+
+        return {
+          centerLine,
+          winMultiplier,
+          totalWin,
+          matchCount,
+          matchedSymbol,
+          isJackpot,
+          fortune10xTriggered
+        };
+      }
+
+      /* =====================================================
+         EXECUÇÃO DO GIRO (SPIN ENGINE)
+         ===================================================== */
+      spin() {
+        const bet = this.getCurrentBet();
+
+        // 1. Verificação de Saldo
+        if (this.balance < bet) {
+          this.sound.playTone(220, 'sawtooth', 0.2, 0.2);
+          this.statusEl.textContent = 'Saldo insuficiente! Ajuste a aposta ou recarregue.';
+          this.statusEl.className = 'status-text alert';
+          this.showTigerSpeech('Ops! Sem saldo suficiente 😿');
+          this.stopAutoSpin();
+
+          // Se o saldo for exatamente 0 ou menor que a aposta mínima, oferece recarga
+          if (this.balance < this.betSteps[0]) {
+            setTimeout(() => this.autoRechargeBalance(), 1000);
+          }
+          return;
+        }
+
+        // 2. Deduzir Aposta e Atualizar Interface
+        this.isSpinning = true;
+        this.balance -= bet;
+        this.lastWin = 0;
+        this.updateHUD();
+
+        // Limpar efeitos visuais anteriores
+        this.paylineHighlight.classList.remove('winning-line');
+        document.querySelectorAll('.symbol-win').forEach(el => el.classList.remove('symbol-win'));
+        this.statusEl.textContent = 'Girando os rolos da fortuna...';
+        this.statusEl.className = 'status-text';
+        this.sound.playSpinStart();
+
+        // Animação de Antecipação e Torcida do Tigrinho
+        this.tigerAvatar.className = 'tiger-avatar-container tiger-anticipating';
+        const cheerPhrases = ['Vai, vai, vai! 🚀', 'Solta a carta, Tigrinho! 🃏', 'Tô sentindo a forra! ✨', 'Gira que vem ouro! 🪙', 'Força nos rolos! 🐯'];
+        this.showTigerSpeech(cheerPhrases[Math.floor(Math.random() * cheerPhrases.length)], 1800);
+
+        // Sorteio dos novos resultados utilizando o algoritmo matemático de cassino
+        const targetGrid = this.generateCasinoSpinOutcome();
+
+        // Animação física de cada rolo com desaceleração suave
+        const numIntermediateSymbols = this.turboMode ? 14 : 24;
+        const baseDuration = this.turboMode ? 700 : 1400; // ms
+        const staggerDuration = this.turboMode ? 200 : 400; // ms de diferença entre cada rolo
+
+        const spinPromises = [];
+
+        for (let reelIdx = 0; reelIdx < 3; reelIdx++) {
+          const strip = document.getElementById(`reelStrip${reelIdx}`);
+          const currentSymbols = this.reelStates[reelIdx];
+          const newSymbols = targetGrid[reelIdx];
+
+          // Constrói a esteira vertical contínua de símbolos:
+          // [Símbolos atuais (3)] + [Símbolos intermediários aleatórios (N)] + [Novos símbolos alvo (3)]
+          const stripSymbols = [...currentSymbols];
+          for (let i = 0; i < numIntermediateSymbols; i++) {
+            stripSymbols.push(this.getRandomSymbol());
+          }
+          stripSymbols.push(...newSymbols);
+
+          // Renderiza a esteira completa
+          strip.innerHTML = stripSymbols.map(id => this.renderSymbolCell(id)).join('');
+          strip.style.transition = 'none';
+          strip.style.transform = 'translateY(0px)';
+          strip.classList.add('reel-spinning');
+
+          // Força reflow no navegador
+          strip.offsetHeight;
+
+          const duration = baseDuration + (reelIdx * staggerDuration);
+          const totalDistance = (stripSymbols.length - 3) * this.rowHeight;
+
+          // Curva de parada com desaceleração suave gradual e leve amortecimento
+          const easing = this.turboMode 
+            ? 'cubic-bezier(0.2, 0.9, 0.3, 1.0)' 
+            : 'cubic-bezier(0.12, 0.85, 0.22, 1.04)';
+
+          strip.style.transition = `transform ${duration}ms ${easing}`;
+          strip.style.transform = `translateY(-${totalDistance}px)`;
+
+          const p = new Promise(resolve => {
+            setTimeout(() => {
+              strip.classList.remove('reel-spinning');
+              this.sound.playReelStop(reelIdx);
+
+              // Atualiza o estado lógico interno do rolo com os 3 novos símbolos
+              this.reelStates[reelIdx] = newSymbols;
+
+              // Normaliza a esteira de volta para conter apenas os 3 símbolos visíveis
+              strip.style.transition = 'none';
+              strip.innerHTML = newSymbols.map(id => this.renderSymbolCell(id)).join('');
+              strip.style.transform = 'translateY(0px)';
+
+              resolve();
+            }, duration);
+          });
+
+          spinPromises.push(p);
+        }
+
+        // 3. Avaliação após todos os 3 rolos pararem
+        Promise.all(spinPromises).then(() => {
+          this.handleSpinResult(targetGrid);
+        });
+      }
+
+      handleSpinResult(grid) {
+        const result = this.evaluateSpin(grid);
+        this.isSpinning = false;
+
+        if (result.totalWin > 0) {
+          // --- VITÓRIA! ---
+          this.balance += result.totalWin;
+          this.lastWin = result.totalWin;
+          this.updateHUD();
+
+          // Destaque visual na Payline central
+          this.paylineHighlight.classList.add('winning-line');
+
+          // Destaque brilhante nos símbolos da linha central vencedora
+          for (let reelIdx = 0; reelIdx < 3; reelIdx++) {
+            const strip = document.getElementById(`reelStrip${reelIdx}`);
+            const centerCell = strip.children[1]; // Linha 1 = Central
+            if (centerCell) {
+              centerCell.classList.add('symbol-win');
+            }
+          }
+
+          if (result.fortune10xTriggered) {
+            // Efeito especial Fortuna 10x!
+            this.sound.playFortuneRoar();
+            this.tigerAvatar.className = 'tiger-avatar-container tiger-super-roar';
+            if (this.gameWrapper) {
+              this.gameWrapper.classList.add('screen-shake');
+              setTimeout(() => this.gameWrapper.classList.remove('screen-shake'), 500);
+            }
+            this.showTigerSpeech('🐯 O TIGRE RUGIU! MULTIPLICADOR 10X! 🔥', 3500);
+            this.statusEl.textContent = `⚡ MULTIPLICADOR 10X DO TIGRE! GANHOU ${this.formatCurrency(result.totalWin)}!`;
+            this.statusEl.className = 'status-text win';
+            this.showBigWinPopup('SUPER BÔNUS 10X!', result.totalWin);
+            this.effects.spawn(true);
+            setTimeout(() => { if (!this.isSpinning) this.tigerAvatar.className = 'tiger-avatar-container'; }, 3800);
+          } else if (result.matchCount === 3 || result.isJackpot) {
+            // Grande Vitória (3 símbolos iguais)
+            this.sound.playBigWin();
+            this.effects.spawn(true);
+            this.tigerAvatar.className = 'tiger-avatar-container tiger-celebrating';
+            const title = result.isJackpot ? '🎰 JACKPOT DO TIGRE! 🎰' : '🌟 GRANDE VITÓRIA! 🌟';
+            this.showBigWinPopup(title, result.totalWin);
+            this.statusEl.textContent = `🎉 3x ${result.matchedSymbol.name.toUpperCase()}! Você ganhou ${this.formatCurrency(result.totalWin)}!`;
+            this.statusEl.className = 'status-text win';
+            this.showTigerSpeech(result.isJackpot ? 'JACKPOT LENDÁRIO!! 💎' : 'Sensacional! O Tigre tá feliz! 👑', 3000);
+            setTimeout(() => { if (!this.isSpinning) this.tigerAvatar.className = 'tiger-avatar-container'; }, 3200);
+          } else {
+            // Vitória Menor (2 símbolos iguais)
+            this.sound.playWin();
+            this.effects.spawn(false);
+            this.tigerAvatar.className = 'tiger-avatar-container tiger-celebrating';
+            this.statusEl.textContent = `✨ Vitória! 2x ${result.matchedSymbol.name} = ${this.formatCurrency(result.totalWin)}`;
+            this.statusEl.className = 'status-text win';
+            this.showTigerSpeech('Boa vitória! Mais uma? ✨', 2200);
+            setTimeout(() => { if (!this.isSpinning) this.tigerAvatar.className = 'tiger-avatar-container'; }, 2400);
+          }
+        } else {
+          // --- NENHUMA COMBINAÇÃO ---
+          this.tigerAvatar.className = 'tiger-avatar-container';
+          this.updateHUD();
+          const looseQuotes = [
+            'Quase lá! Tente mais uma vez.',
+            'A sorte está se acumulando...',
+            'O Tigre da Fortuna aguarda seu próximo giro!',
+            'Gire novamente para ativar o bônus!'
+          ];
+          const quote = looseQuotes[Math.floor(Math.random() * looseQuotes.length)];
+          this.statusEl.textContent = quote;
+          this.statusEl.className = 'status-text';
+          if (Math.random() < 0.3) {
+            this.showTigerSpeech('Persista! A sorte vem logo! 🔥');
+          }
+        }
+
+        // Continuação do Giro Automático (se ativo)
+        if (this.autoSpinActive) {
+          this.autoSpinsRemaining--;
+          if (this.autoSpinsRemaining > 0 && this.balance >= this.getCurrentBet()) {
+            this.autoBtnText.textContent = `${this.autoSpinsRemaining}`;
+            const delay = result.totalWin > 0 ? (this.turboMode ? 900 : 1800) : (this.turboMode ? 350 : 700);
+            this.autoTimer = setTimeout(() => {
+              if (this.autoSpinActive) this.spin();
+            }, delay);
+          } else {
+            this.stopAutoSpin();
+          }
+        }
+      }
+
+      showBigWinPopup(title, amount) {
+        this.bigWinTitle.textContent = title;
+        this.bigWinAmount.textContent = this.formatCurrency(amount);
+        this.bigWinOverlay.classList.add('show');
+        setTimeout(() => {
+          this.bigWinOverlay.classList.remove('show');
+        }, 2600);
+      }
+
+      /* =====================================================
+         REPOSIÇÃO AUTOMÁTICA DE CRÉDITOS
+         ===================================================== */
+      autoRechargeBalance() {
+        if (this.balance < this.betSteps[0]) {
+          this.balance = 500.00;
+          this.updateHUD();
+          this.sound.playBigWin();
+          this.effects.spawn(true);
+
+          this.rechargeToast.classList.add('show');
+          this.showTigerSpeech('O Tigre recarregou sua sorte! 🧧');
+          this.statusEl.textContent = 'Bônus de R$ 500,00 concedido! Boa sorte!';
+          this.statusEl.className = 'status-text win';
+
+          setTimeout(() => {
+            this.rechargeToast.classList.remove('show');
+          }, 4000);
+        }
+      }
+
+      /* =====================================================
+         CONTROLES AUXILIARES E EVENTOS
+         ===================================================== */
+      toggleAutoSpin() {
+        if (this.autoSpinActive) {
+          this.stopAutoSpin();
+        } else {
+          this.autoSpinActive = true;
+          this.autoSpinsRemaining = 10;
+          this.autoBtn.classList.add('active');
+          this.autoBtnText.textContent = `${this.autoSpinsRemaining}`;
+          this.showTigerSpeech('10 Giros Automáticos ativados! 🚀');
+          if (!this.isSpinning) {
+            this.spin();
+          }
+        }
+      }
+
+      stopAutoSpin() {
+        this.autoSpinActive = false;
+        this.autoSpinsRemaining = 0;
+        clearTimeout(this.autoTimer);
+        this.autoBtn.classList.remove('active');
+        this.autoBtnText.textContent = 'AUTO';
+      }
+
+      toggleTurbo() {
+        this.turboMode = !this.turboMode;
+        this.turboBtn.classList.toggle('active', this.turboMode);
+        this.sound.playClick();
+        this.showTigerSpeech(this.turboMode ? 'Turbo Ativado! ⚡' : 'Velocidade Normal ⏱️');
+      }
+
+      attachEventListeners() {
+        // Botão Principal GIRAR
+        this.spinBtn.addEventListener('click', () => {
+          this.sound.init();
+          if (!this.isSpinning) {
+            this.spin();
+          }
+        });
+
+        // Botões de Ajuste de Aposta
+        this.betDecreaseBtn.addEventListener('click', () => {
+          this.sound.playClick();
+          if (this.currentBetIndex > 0) {
+            this.currentBetIndex--;
+            this.updateHUD();
+          }
+        });
+
+        this.betIncreaseBtn.addEventListener('click', () => {
+          this.sound.playClick();
+          if (this.currentBetIndex < this.betSteps.length - 1) {
+            this.currentBetIndex++;
+            this.updateHUD();
+          }
+        });
+
+        this.betMaxBtn.addEventListener('click', () => {
+          this.sound.playClick();
+          this.currentBetIndex = this.betSteps.length - 1;
+          this.updateHUD();
+          this.showTigerSpeech('Aposta Máxima Ativada! 💰');
+        });
+
+        // Botões de Modo
+        this.turboBtn.addEventListener('click', () => this.toggleTurbo());
+        this.autoBtn.addEventListener('click', () => this.toggleAutoSpin());
+
+        // Botão de Algoritmo / Volatilidade
+        if (this.volatilityBtn) {
+          this.volatilityBtn.addEventListener('click', () => this.toggleVolatility());
+        }
+
+        // Controle de Som
+        this.soundBtn.addEventListener('click', () => {
+          const soundOn = this.sound.toggleMute();
+          this.soundBtn.textContent = soundOn ? '🔊' : '🔇';
+          if (soundOn) this.sound.playClick();
+        });
+
+        // Modal de Pagamentos
+        this.paytableBtn.addEventListener('click', () => {
+          this.sound.playClick();
+          this.paytableModal.classList.add('active');
+        });
+
+        this.closeModalBtn.addEventListener('click', () => {
+          this.sound.playClick();
+          this.paytableModal.classList.remove('active');
+        });
+
+        this.paytableModal.addEventListener('click', (e) => {
+          if (e.target === this.paytableModal) {
+            this.paytableModal.classList.remove('active');
+          }
+        });
+
+        // Interação ao clicar no Mascote Tigre da Fortuna
+        this.tigerAvatar.addEventListener('click', () => {
+          this.sound.playFortuneRoar();
+          this.effects.spawn(false);
+          this.tigerAvatar.className = 'tiger-avatar-container tiger-celebrating';
+          setTimeout(() => {
+            if (!this.isSpinning) this.tigerAvatar.className = 'tiger-avatar-container';
+          }, 1800);
+
+          const tigerGreetings = [
+            'O Tigre da Fortuna te abençoa! 🐅✨',
+            'Sinto uma grande vitória chegando! 🪙',
+            'Solta a carta que a forra é certa! 🃏',
+            'Gire os rolos e conquiste o ouro! 💰',
+            'Que a sorte oriental esteja com você! 🏮'
+          ];
+          this.showTigerSpeech(tigerGreetings[Math.floor(Math.random() * tigerGreetings.length)], 2500);
+        });
+
+        // Atalho Teclado (Barra de Espaço para girar)
+        window.addEventListener('keydown', (e) => {
+          if (e.code === 'Space' && !this.isSpinning && !this.paytableModal.classList.contains('active')) {
+            e.preventDefault();
+            this.spin();
+          }
+        });
+      }
+    }
+
+    // Inicialização do Jogo
+    window.addEventListener('DOMContentLoaded', () => {
+      window.game = new FortuneTigerGame();
+    });
+  </script>
+</body>
+</html>
